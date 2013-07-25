@@ -8,6 +8,7 @@
 * Changelog & more info at http://goo.gl/4nKhJ
 */
 
+#pragma semicolon 1
 #include <sdktools_functions>
 
 // ====[ CONSTANTS ]===============================================================
@@ -16,7 +17,6 @@
 
 #define SLOT_PRIMARY   0
 #define DOD_MAXPLAYERS 33
-#define FORCE_DUCK     7
 
 enum
 {
@@ -46,7 +46,7 @@ public Plugin:myinfo =
 	description = "Simply allows player to drop deployed weapons",
 	version     = PLUGIN_VERSION,
 	url         = "http://dodsplugins.com/"
-}
+};
 
 
 /* OnPluginStart()
@@ -55,7 +55,7 @@ public Plugin:myinfo =
  * -------------------------------------------------------------------------------- */
 public OnPluginStart()
 {
-	// Create console variables for plugin
+	// Create ConVars (version one and toggle)
 	CreateConVar("dod_armedrop_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AllowDropping = CreateConVar("dod_armedrop_enable", "1", "Allow players to drop deployed weapons ?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 
