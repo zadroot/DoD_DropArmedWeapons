@@ -10,10 +10,13 @@
 
 #include <sdktools_functions>
 
-// ====[ PLUGIN ]=================================================================
+// ====[ CONSTANTS ]===============================================================
 #define PLUGIN_NAME    "DoD:S Drop Armed Weapons"
 #define PLUGIN_VERSION "1.0"
+
 #define SLOT_PRIMARY   0
+#define DOD_MAXPLAYERS 33
+#define FORCE_DUCK     7
 
 enum
 {
@@ -26,6 +29,7 @@ enum
 static	Offset_DeployedMG,
 		Offset_DeployedRT,
 		Handle:AllowDropping,
+		bool:DroppedMG[DOD_MAXPLAYERS + 1],
 		String:DeployedWeapons[][] =
 {
 	"30cal",
@@ -34,6 +38,7 @@ static	Offset_DeployedMG,
 	"pschreck"
 };
 
+// ====[ PLUGIN ]==================================================================
 public Plugin:myinfo =
 {
 	name        = PLUGIN_NAME,
@@ -47,7 +52,7 @@ public Plugin:myinfo =
 /* OnPluginStart()
  *
  * When the plugin starts up.
- * ------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------------- */
 public OnPluginStart()
 {
 	// Create console variables for plugin
@@ -65,7 +70,7 @@ public OnPluginStart()
 /* OnDropWeapon()
  *
  * When the 'drop' command is called.
- * ------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------------- */
 public Action:OnDropWeapon(client, const String:command[], argc)
 {
 	// Check whether or not plugin should work
@@ -74,17 +79,22 @@ public Action:OnDropWeapon(client, const String:command[], argc)
 		// Get the weapon which player is holding at this moment and retrieve its classname
 		decl String:classname[16];
 		GetClientWeapon(client, classname, sizeof(classname));
+
 		new weapon = GetPlayerWeaponSlot(client, SLOT_PRIMARY);
 
 		// Skip the first 7 characters in weapon string to avoid comparing with the "weapon_" prefix (optimizations)
 		if (StrEqual(classname[7], DeployedWeapons[_30cal]))
 		{
 			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+
+			// Make sure player has dropped a MG
+			DroppedMG[client] = true;
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[mg42]))
 		{
 			// MG42 is dropped: set m_bDeployed value to 0 (to allow weapon dropping automatically)
 			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+			DroppedMG[client] = true;
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[bazooka]))
 		{
@@ -97,4 +107,24 @@ public Action:OnDropWeapon(client, const String:command[], argc)
 			SetEntData(weapon, Offset_DeployedRT, false, 4, true);
 		}
 	}
+}
+
+/* OnPlayerRunCmd()
+ *
+ * When a clients movement buttons are being processed.
+ * -------------------------------------------------------------------------------- */
+public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon, &subtype, &cmdnum, &tickcount, &seed, mouse[2])
+{
+	// Check whether or not player has dropped a MG
+	if (DroppedMG[client] == true)
+	{
+		// Force +duck button to fix bad player height
+		buttons ^= IN_DUCK;
+
+		// For optimizations set global bool to false now
+		DroppedMG[client] = false;
+	}
+
+	// return
+	return Plugin_Continue;
 }
