@@ -55,7 +55,7 @@ public Plugin:myinfo =
  * -------------------------------------------------------------------------------- */
 public OnPluginStart()
 {
-	// Create ConVars (version one and toggle)
+	// Create ConVars (version one and toggler)
 	CreateConVar("dod_armedrop_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AllowDropping = CreateConVar("dod_armedrop_enable", "1", "Allow players to drop deployed weapons ?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 
@@ -73,7 +73,7 @@ public OnPluginStart()
  * -------------------------------------------------------------------------------- */
 public Action:OnDropWeapon(client, const String:command[], argc)
 {
-	// Check whether or not plugin should work
+	// Check whether or not plugin is enabled
 	if (GetConVarBool(AllowDropping))
 	{
 		// Get the weapon which player is holding at this moment and retrieve its classname
@@ -85,26 +85,26 @@ public Action:OnDropWeapon(client, const String:command[], argc)
 		// Skip the first 7 characters in weapon string to avoid comparing with the "weapon_" prefix (optimizations)
 		if (StrEqual(classname[7], DeployedWeapons[_30cal]))
 		{
-			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+			SetEntData(weapon, Offset_DeployedMG, false, _, true);
 
-			// Make sure player has dropped a MG
+			// Set global boolean for player
 			DroppedMG[client] = true;
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[mg42]))
 		{
 			// MG42 is dropped: set m_bDeployed value to 0 (to allow weapon dropping automatically)
-			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+			SetEntData(weapon, Offset_DeployedMG, false, _, true);
 			DroppedMG[client] = true;
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[bazooka]))
 		{
 			// A bazooka was dropped
-			SetEntData(weapon, Offset_DeployedRT, false, 4, true);
+			SetEntData(weapon, Offset_DeployedRT, false, _, true);
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[pschreck]))
 		{
 			// Another weapon - appropriate set offset for panzerschreck now
-			SetEntData(weapon, Offset_DeployedRT, false, 4, true);
+			SetEntData(weapon, Offset_DeployedRT, false, _, true);
 		}
 	}
 }
@@ -113,7 +113,7 @@ public Action:OnDropWeapon(client, const String:command[], argc)
  *
  * When a clients movement buttons are being processed.
  * -------------------------------------------------------------------------------- */
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon, &subtype, &cmdnum, &tickcount, &seed, mouse[2])
+public Action:OnPlayerRunCmd(client, &buttons)
 {
 	// Check whether or not player has dropped a MG
 	if (DroppedMG[client] == true)
@@ -125,6 +125,6 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 		DroppedMG[client] = false;
 	}
 
-	// return
+	// continue
 	return Plugin_Continue;
 }
