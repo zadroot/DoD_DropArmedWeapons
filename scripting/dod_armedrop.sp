@@ -85,7 +85,7 @@ public Action:OnDropWeapon(client, const String:command[], argc)
 		// Skip the first 7 characters in weapon string to avoid comparing with the "weapon_" prefix (optimizations)
 		if (StrEqual(classname[7], DeployedWeapons[_30cal]))
 		{
-			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+			SetEntData(weapon, Offset_DeployedMG, false, _, true);
 
 			// Make sure player has dropped a MG
 			DroppedMG[client] = true;
@@ -93,18 +93,18 @@ public Action:OnDropWeapon(client, const String:command[], argc)
 		else if (StrEqual(classname[7], DeployedWeapons[mg42]))
 		{
 			// MG42 is dropped: set m_bDeployed value to 0 (to allow weapon dropping automatically)
-			SetEntData(weapon, Offset_DeployedMG, false, 4, true);
+			SetEntData(weapon, Offset_DeployedMG, false, _, true);
 			DroppedMG[client] = true;
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[bazooka]))
 		{
 			// A bazooka was dropped
-			SetEntData(weapon, Offset_DeployedRT, false, 4, true);
+			SetEntData(weapon, Offset_DeployedRT, false, _, true);
 		}
 		else if (StrEqual(classname[7], DeployedWeapons[pschreck]))
 		{
 			// Another weapon - appropriate set offset for panzerschreck now
-			SetEntData(weapon, Offset_DeployedRT, false, 4, true);
+			SetEntData(weapon, Offset_DeployedRT, false, _, true);
 		}
 	}
 }
@@ -113,9 +113,9 @@ public Action:OnDropWeapon(client, const String:command[], argc)
  *
  * When a clients movement buttons are being processed.
  * -------------------------------------------------------------------------------- */
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon, &subtype, &cmdnum, &tickcount, &seed, mouse[2])
+public Action:OnPlayerRunCmd(client, &buttons/*, &impulse, Float:vel[3], Float:angles[3], &weapon, &subtype, &cmdnum, &tickcount, &seed, mouse[2]*/)
 {
-	// Check whether or not player has dropped MG
+	// Check whether or not player dropped MG
 	if (DroppedMG[client] == true)
 	{
 		// Force +duck button to fix bad player height
